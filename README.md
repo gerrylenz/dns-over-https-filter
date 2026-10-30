@@ -6,7 +6,7 @@ Anzeigen, die vom selben Namen kommen wie die Seite selbst, bleiben stehen. Der 
 
 Die Anfragen gehen verschlüsselt per DNS-over-HTTPS an den eigenen Server. Der Provider sieht dabei nicht, welche Namen abgefragt werden. Die spätere Verbindung zur Seite sieht er weiter, einschließlich der Zieladresse.
 
-Der Filter läuft auf einem Linux-Server mit öffentlicher Adresse. Die Geräte im LAN fragen einen kleinen Weiterleiter auf dem Router. Der schickt jede Anfrage per DNS-over-HTTPS an den Server und schreibt die LAN-Adresse des Geräts mit. Der Server prüft die Sperrlisten und löst den Namen über einen lokalen Resolver auf.
+Der Filter läuft auf einem Linux-Server mit öffentlicher Adresse. Die Geräte fragen den Router, und der Router schickt die Anfrage per DNS-over-HTTPS an den Server. Der Server prüft die Sperrlisten und löst den Namen über einen lokalen Resolver auf. Ein Weiterleiter auf dem Router ist dafür nicht nötig. Er schreibt nur zusätzlich die LAN-Adresse des Geräts in die Anfrage, damit im Protokoll das einzelne Gerät steht und nicht die öffentliche Adresse des Anschlusses.
 
 Die Beispiele unten heißen `beispiel.domain`, `dns.beispiel.domain`, `dein_username`, `203.0.113.10` und `192.168.1.250`. Das sind Platzhalter. Vor dem ersten Befehl die eigenen Werte einsetzen und danach überall dieselben verwenden.
 
@@ -96,6 +96,10 @@ In der Weboberfläche den Menüpunkt **Einstellungen** öffnen. Dort steht ein A
 
 Damit anfangen, wenn die Prüfungen aus Abschnitt 2 gelingen und die DoH-Adresse vorliegt.
 
+Der Filter funktioniert ohne den Weiterleiter. Die Geräte fragen den Router, der Router fragt den Server per DNS-over-HTTPS. Gesperrte Namen bleiben gesperrt, und der Provider sieht die Namensabfragen nicht. Im Protokoll steht dann bei jedem Gerät die öffentliche Adresse des Anschlusses.
+
+Soll im Protokoll die LAN-Adresse des einzelnen Geräts stehen, kommt der Weiterleiter dazu. Das ist der Container ab Abschnitt 3.1. Die Geräte fragen dann ihn, und er schreibt die Absenderadresse in die Anfrage. Ohne diesen Wunsch die Abschnitte 3.1 bis 3.3 auslassen.
+
 Die Uhr der RB5009 muss stimmen, sonst lehnt sie das Zertifikat ab. Im Terminal der RB5009 ausführen:
 
 ```routeros
@@ -106,6 +110,8 @@ Die Uhr der RB5009 muss stimmen, sonst lehnt sie das Zertifikat ab. Im Terminal 
 Der DNS-Dienst von RouterOS filtert ebenfalls, schreibt aber die Adresse des Geräts nicht mit. Im Protokoll steht dann die öffentliche Adresse des Anschlusses. Der Container auf `192.168.1.250` hört im LAN auf Port 53, übernimmt die Absenderadresse und fragt den Server per DNS-over-HTTPS.
 
 ### 3.1 Container-Paket
+
+Diesen Abschnitt und die beiden folgenden nur ausführen, wenn im Protokoll die LAN-Adresse jedes Geräts stehen soll.
 
 Das Paket muss zur installierten RouterOS-Version und zur Architektur passen. Für RouterOS 7.24.5 auf ARM64 liegt es im Repository als `deploy/container-7.24.5-arm64.npk`. Für eine andere Version das Extra-Paket `container` von [mikrotik.com/download](https://mikrotik.com/download) holen.
 
@@ -184,21 +190,32 @@ Dieselben drei Befehle stehen in der Weboberfläche unter **Einstellungen** im A
 
 ### 3.5 DHCP
 
-Die Geräte bekommen als DNS-Server `192.168.1.250`. Im Terminal der RB5009 ausführen:
+Ohne Weiterleiter bekommen die Geräte den Router als DNS-Server. Im Terminal der RB5009 ausführen:
 
 ```routeros
-/ip dhcp-server network print
+/ip dhcp-server network set [find address=192.168.1.0/24] dns-server=192.168.1.1
+```
+
+Mit Weiterleiter bekommen sie den Container. Im Terminal der RB5009 ausführen:
+
+```routeros
 /ip dhcp-server network set [find address=192.168.1.0/24] dns-server=192.168.1.250
 ```
 
-In der Ausgabe steht bei diesem Netz `192.168.1.250`. Bestehende Leases behalten den vorigen DNS-Server bis zur Erneuerung. Danach auf einem Gerät die Lease erneuern oder neu starten.
+Nur eine der beiden Zeilen ausführen. Danach im Terminal der RB5009 prüfen:
+
+```routeros
+/ip dhcp-server network print
+```
+
+In der Ausgabe steht die gewählte Adresse. Bestehende Leases behalten den vorigen DNS-Server bis zur Erneuerung. Danach auf einem Gerät die Lease erneuern oder neu starten.
 
 Ein fest eingetragener DNS-Server, privates DNS auf dem Handy und DNS-over-HTTPS im Browser verwenden diesen DHCP-Eintrag nicht. Diese Anfragen gehen am Filter vorbei.
 
 ### 3.6 Gesamten Weg prüfen
 
-1. Auf einem DHCP-Gerät steht als DNS-Server `192.168.1.250`.
-2. Eine Abfrage von diesem Gerät erscheint in **Letzte Anfragen** mit seiner LAN-Adresse.
+1. Auf einem DHCP-Gerät steht als DNS-Server die Adresse aus Abschnitt 3.5.
+2. Eine Abfrage von diesem Gerät erscheint in **Letzte Anfragen**. Mit Weiterleiter steht dort seine LAN-Adresse, ohne Weiterleiter die öffentliche Adresse des Anschlusses.
 3. HaGeZi Pro und HaGeZi TIF zeigen eine Namenszahl und einen Stand.
 4. Ein gesperrter Name, zum Beispiel einer aus **Immer sperren**, kommt als NXDOMAIN zurück.
 
