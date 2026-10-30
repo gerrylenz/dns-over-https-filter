@@ -1,5 +1,11 @@
 # DNS-over-HTTPS Filter
 
+Der Filter sperrt Namen, bevor ein Gerät sie auflöst. Damit wirkt er im ganzen Netz als Werbeblocker: Werbung, Zählpixel und Tracker, die einen eigenen Namen haben, werden nicht mehr abgerufen. Voreingestellt sind die Sperrlisten HaGeZi Pro und HaGeZi TIF. Zusätzlich lassen sich einzelne Namen immer sperren oder immer erlauben. Die Sperre gilt für jedes Gerät, das diesen DNS-Server benutzt, also für Handy, Fernseher und Rechner, ohne Zusatzprogramm im Browser.
+
+Anzeigen, die vom selben Namen kommen wie die Seite selbst, bleiben stehen. Der Filter sieht nur den Namen der DNS-Anfrage, nicht den Inhalt der Seite.
+
+Die Anfragen gehen verschlüsselt per DNS-over-HTTPS an den eigenen Server. Der Provider sieht dabei nicht, welche Namen abgefragt werden. Die spätere Verbindung zur Seite sieht er weiter, einschließlich der Zieladresse.
+
 Der Filter läuft auf einem Linux-Server mit öffentlicher Adresse. Die Geräte im LAN fragen einen kleinen Weiterleiter auf dem Router. Der schickt jede Anfrage per DNS-over-HTTPS an den Server und schreibt die LAN-Adresse des Geräts mit. Der Server prüft die Sperrlisten und löst den Namen über einen lokalen Resolver auf.
 
 Die Beispiele unten heißen `beispiel.domain`, `dns.beispiel.domain`, `dein_username`, `203.0.113.10` und `192.168.1.250`. Das sind Platzhalter. Vor dem ersten Befehl die eigenen Werte einsetzen und danach überall dieselben verwenden.
