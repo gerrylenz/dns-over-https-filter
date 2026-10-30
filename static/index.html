@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>DNS-over-HTTPS Filter</title>
+  <link rel="stylesheet" href="/app.css">
+</head>
+<body>
+  <header class="top">
+    <div>
+      <p class="mark">DNS-over-HTTPS</p>
+      <h1>Filter</h1>
+    </div>
+    <p id="run-state" class="run">Verbindung…</p>
+  </header>
+  <div class="shell">
+    <nav id="nav">
+      <button type="button" data-panel="overview" class="active">Übersicht</button>
+      <button type="button" data-panel="log">Protokoll</button>
+      <button type="button" data-panel="protect">Schutz</button>
+      <button type="button" data-panel="rewrite">Umleitungen</button>
+      <button type="button" data-panel="settings">Einstellungen</button>
+    </nav>
+    <main id="main"></main>
+  </div>
+  <script src="/app.js"></script>
+</body>
+</html>

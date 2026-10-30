@@ -1,0 +1,42 @@
+# Auf dem Server dns_listen = "0.0.0.0:53" und doh_listen = "0.0.0.0:443".
+hostname = "localhost"
+dns_listen = "0.0.0.0:5353"
+doh_listen = "0.0.0.0:8443"
+admin_listen = "127.0.0.1:8080"
+clients = []
+upstreams = [
+    "1.1.1.1",
+    "9.9.9.9",
+]
+block_mode = "nxdomain"
+paused = false
+allow = []
+deny = ["data.microsoft.com", "office.com"]
+rewrites = []
+doh_token = ""
+self_signed = true
+cert_hostname = "localhost"
+
+[[blocklists]]
+id = "oisd-small"
+name = "OISD Small"
+url = "https://small.oisd.nl/domainswild"
+enabled = false
+
+[[blocklists]]
+id = "hagezi-pro"
+name = "HaGeZi Pro"
+url = "https://raw.githubusercontent.com/hagezi/dns-blocklists/main/wildcard/pro-onlydomains.txt"
+enabled = true
+
+[[blocklists]]
+id = "hagezi-tif"
+name = "HaGeZi TIF"
+url = "https://raw.githubusercontent.com/hagezi/dns-blocklists/main/wildcard/tif-onlydomains.txt"
+enabled = true
+
+[[blocklists]]
+id = "nrd-7"
+name = "Neu registrierte Domains, 7 Tage"
+url = "https://raw.githubusercontent.com/hagezi/nrd/main/domains/nrd7.txt"
+enabled = false
