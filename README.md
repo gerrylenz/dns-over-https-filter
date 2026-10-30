@@ -8,6 +8,8 @@ Die Anfragen gehen verschlüsselt per DNS-over-HTTPS an den eigenen Server. Der 
 
 Der Filter läuft auf einem Linux-Server mit öffentlicher Adresse. Die Geräte fragen den Router, und der Router schickt die Anfrage per DNS-over-HTTPS an den Server. Der Server prüft die Sperrlisten und löst den Namen über einen lokalen Resolver auf. Ein Weiterleiter auf dem Router ist dafür nicht nötig. Er schreibt nur zusätzlich die LAN-Adresse des Geräts in die Anfrage, damit im Protokoll das einzelne Gerät steht und nicht die öffentliche Adresse des Anschlusses.
 
+![Übersicht der Oberfläche. Die abgefragten Namen sind unkenntlich gemacht.](docs/uebersicht.png)
+
 Die Beispiele unten heißen `beispiel.domain`, `dns.beispiel.domain`, `dein_username`, `203.0.113.10` und `192.168.1.250`. Das sind Platzhalter. Vor dem ersten Befehl die eigenen Werte einsetzen und danach überall dieselben verwenden.
 
 | Wert | Beispiel | Bedeutung |
